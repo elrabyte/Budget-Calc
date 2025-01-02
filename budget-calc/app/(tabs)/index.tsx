@@ -1,77 +1,117 @@
-import { Image, StyleSheet, Platform, ScrollView } from "react-native";
-
-import { HelloWave } from "@/components/HelloWave";
+import React, { useMemo, useState } from "react";
+import { DataTable, Text } from "react-native-paper";
+import { useAppContext } from "../app-context";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import ThemedView from "@/components/ThemedView";
+import { ThemedDropDownMultiple } from "@/components/ThemedDropDownMultiple";
 
-export default function HomeScreen() {
+export const Home = () => {
+  const { expenses } = useAppContext();
+  const [sortColumn, setSortColumn] = useState("category");
+  const [sortAscending, setSortAscending] = useState(true);
+
+  const [groupCategories, setGroupCategories] = useState<string[]>([]);
+  const groupedCategories = useMemo(() => {
+    const categories = expenses.map((e) => ({
+      label: e.category,
+      value: e.category,
+    }));
+    return [...new Set(categories), { label: "-", value: "" }];
+  }, [expenses]);
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortAscending(!sortAscending);
+    } else {
+      setSortColumn(column);
+      setSortAscending(true);
+    }
+  };
+
+  const sortedExpenses = [...expenses].sort((a, b) => {
+    if (a[sortColumn] < b[sortColumn]) return sortAscending ? -1 : 1;
+    if (a[sortColumn] > b[sortColumn]) return sortAscending ? 1 : -1;
+    return 0;
+  });
+
   return (
-    <ScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{" "}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ScrollView>
-  );
-}
+    <ThemedView>
+      <ThemedText
+        text="Expense Entries"
+        icon={""}
+        label={""}
+        extended={false}
+      />
+      <ThemedDropDownMultiple
+        items={groupedCategories}
+        values={groupCategories}
+        setValue={(values) => {
+          setGroupCategories(values);
+        }}
+      />
+      <DataTable>
+        <DataTable.Header>
+          <DataTable.Title
+            sortDirection={
+              sortColumn === "category"
+                ? sortAscending
+                  ? "ascending"
+                  : "descending"
+                : undefined
+            }
+            onPress={() => handleSort("category")}
+          >
+            Category
+          </DataTable.Title>
+          <DataTable.Title
+            sortDirection={
+              sortColumn === "description"
+                ? sortAscending
+                  ? "ascending"
+                  : "descending"
+                : undefined
+            }
+            onPress={() => handleSort("description")}
+          >
+            Description
+          </DataTable.Title>
+          <DataTable.Title
+            sortDirection={
+              sortColumn === "frequency"
+                ? sortAscending
+                  ? "ascending"
+                  : "descending"
+                : undefined
+            }
+            onPress={() => handleSort("frequency")}
+          >
+            Frequency
+          </DataTable.Title>
+          <DataTable.Title
+            sortDirection={
+              sortColumn === "price"
+                ? sortAscending
+                  ? "ascending"
+                  : "descending"
+                : undefined
+            }
+            onPress={() => handleSort("price")}
+          >
+            Price
+          </DataTable.Title>
+        </DataTable.Header>
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});
+        {sortedExpenses.map((item, index) => (
+          <DataTable.Row key={index}>
+            <DataTable.Cell>{item.category}</DataTable.Cell>
+            <DataTable.Cell>{item.description}</DataTable.Cell>
+            <DataTable.Cell>{item.frequency.name}</DataTable.Cell>
+            <DataTable.Cell>{item.price.toFixed(2)}</DataTable.Cell>
+          </DataTable.Row>
+        ))}
+      </DataTable>
+    </ThemedView>
+  );
+};
+
+export default Home;

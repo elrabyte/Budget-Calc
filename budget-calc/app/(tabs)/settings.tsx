@@ -1,119 +1,96 @@
-import { StyleSheet, Image, Platform } from "react-native";
+import ThemedView from "@/components/ThemedView";
+import DropDownPicker from "react-native-dropdown-picker";
+import React, { useState } from "react";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { ExpenseEntry } from "../types/expense-entry";
+import { Frequencies } from "../types/frequency";
+import { useAppContext } from "../app-context";
+import { ThemedTextInput } from "@/components/ThemedTextInput";
+import { Button, TextInput } from "react-native-paper";
 
-import { Collapsible } from "@/components/Collapsible";
-import { ExternalLink } from "@/components/ExternalLink";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { ScrollView } from "react-native-gesture-handler";
+const Tab = createMaterialTopTabNavigator();
 
-export default function TabTwoScreen() {
+const defaultExpense: ExpenseEntry = {
+  category: "",
+  description: "",
+  frequency: Frequencies.filter((f) => f.name == "Monthly")[0],
+  payment_account: "",
+  price: 0,
+};
+const { addExpense } = useAppContext();
+
+function ExpensesTab() {
+  const [newExpense, setNewExpense] = useState<ExpenseEntry>(defaultExpense);
+
+  const handleAddExpense = () => {
+    if (
+      newExpense.category &&
+      newExpense.description &&
+      newExpense.payment_account &&
+      newExpense.price > 0
+    ) {
+      addExpense(newExpense);
+      setNewExpense(defaultExpense);
+    } else {
+      alert("Please fill out all fields.");
+    }
+  };
+
   return (
-    <ScrollView>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>
-        This app includes example code to help you get started.
-      </ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          and{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{" "}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the
-          web version, press <ThemedText type="defaultSemiBold">w</ThemedText>{" "}
-          in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the{" "}
-          <ThemedText type="defaultSemiBold">@2x</ThemedText> and{" "}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to
-          provide files for different screen densities
-        </ThemedText>
-        <Image
-          source={require("@/assets/images/react-logo.png")}
-          style={{ alignSelf: "center" }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText>{" "}
-          to see how to load{" "}
-          <ThemedText style={{ fontFamily: "SpaceMono" }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{" "}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook
-          lets you inspect what the user's current color scheme is, and so you
-          can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{" "}
-          <ThemedText type="defaultSemiBold">
-            components/HelloWave.tsx
-          </ThemedText>{" "}
-          component uses the powerful{" "}
-          <ThemedText type="defaultSemiBold">
-            react-native-reanimated
-          </ThemedText>{" "}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The{" "}
-              <ThemedText type="defaultSemiBold">
-                components/ParallaxScrollView.tsx
-              </ThemedText>{" "}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ScrollView>
+    <ThemedView>
+      <TextInput mode="outlined" value={""} />
+      <ThemedTextInput
+        label="Category"
+        value={newExpense.category}
+        setValue={(text) => setNewExpense({ ...newExpense, category: text })}
+      />
+      <ThemedTextInput
+        label="Description"
+        value={newExpense.description}
+        setValue={(text) => setNewExpense({ ...newExpense, description: text })}
+      />
+      <ThemedTextInput
+        label="Payment Account"
+        value={newExpense.payment_account}
+        setValue={(text) =>
+          setNewExpense({ ...newExpense, payment_account: text })
+        }
+      />
+      <DropDownPicker
+        theme="DARK"
+        open={open}
+        value={newExpense.frequency.name}
+        items={Frequencies.map((f) => ({ value: f.name, label: f.name }))}
+        setOpen={setOpen}
+        setItems={() => {}}
+        setValue={() => {}}
+        onSelectItem={(value) => {
+          setOpen(false);
+          setNewExpense({ ...newExpense, frequency: { name: value.value! } });
+        }}
+        multiple={false}
+      />
+      <ThemedTextInput
+        label="Price"
+        keyboardType="numeric"
+        value={newExpense.price.toString()}
+        setValue={(text) =>
+          setNewExpense({ ...newExpense, price: parseFloat(text) || 0 })
+        }
+      />
+      <Button mode="contained" onPress={handleAddExpense}>
+        Add Expense
+      </Button>
+    </ThemedView>
   );
 }
 
-const styles = StyleSheet.create({
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
-    position: "absolute",
-  },
-  titleContainer: {
-    flexDirection: "row",
-    gap: 8,
-  },
-});
+export default function Settings() {
+  return (
+    <ThemedView>
+      <Tab.Navigator>
+        <Tab.Screen name="Expenses" component={ExpensesTab} />
+      </Tab.Navigator>
+    </ThemedView>
+  );
+}

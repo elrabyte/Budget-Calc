@@ -1,6 +1,6 @@
 import { Frequency } from "./frequency";
 
-export type entry = {
+export type ExpenseEntry = {
   category: string;
   description: string;
   frequency: Frequency;
