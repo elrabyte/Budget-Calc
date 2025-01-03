@@ -1,117 +1,115 @@
-import React, { useMemo, useState } from "react";
-import { DataTable, Text } from "react-native-paper";
-import { useAppContext } from "../app-context";
-import { ThemedText } from "@/components/ThemedText";
-import ThemedView from "@/components/ThemedView";
-import { ThemedDropDownMultiple } from "@/components/ThemedDropDownMultiple";
+import React, { useMemo } from "react";
+import { useAppContext } from "../context/app-context";
+
+import { ScrollView, StyleSheet, View, Text } from "react-native";
 
 export const Home = () => {
-  const { expenses } = useAppContext();
-  const [sortColumn, setSortColumn] = useState("category");
-  const [sortAscending, setSortAscending] = useState(true);
+  const { expenses, income } = useAppContext();
 
-  const [groupCategories, setGroupCategories] = useState<string[]>([]);
-  const groupedCategories = useMemo(() => {
-    const categories = expenses.map((e) => ({
-      label: e.category,
-      value: e.category,
-    }));
-    return [...new Set(categories), { label: "-", value: "" }];
-  }, [expenses]);
+  // const categories = useMemo(() => {
+  //   return new Set(expenses.map((e) => e.category));
+  // }, [expenses]);
 
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      setSortAscending(!sortAscending);
-    } else {
-      setSortColumn(column);
-      setSortAscending(true);
-    }
-  };
+  // const sumCostsMonth = useMemo(() => {
+  //   return expenses.reduce(
+  //     (sum, current) => sum + current.frequency.toMonth(current.cost),
+  //     0
+  //   );
+  // }, [expenses]);
+  // const sumCostsYear = useMemo(() => {
+  //   return expenses.reduce(
+  //     (sum, current) => sum + current.frequency.toYear(current.cost),
+  //     0
+  //   );
+  // }, [expenses]);
 
-  const sortedExpenses = [...expenses].sort((a, b) => {
-    if (a[sortColumn] < b[sortColumn]) return sortAscending ? -1 : 1;
-    if (a[sortColumn] > b[sortColumn]) return sortAscending ? 1 : -1;
-    return 0;
-  });
+  // const savingsMonth = useMemo(
+  //   () => income - sumCostsMonth,
+  //   [expenses, income]
+  // );
+  // const savingsYear = useMemo(() => income - sumCostsYear, [expenses, income]);
 
   return (
-    <ThemedView>
-      <ThemedText
-        text="Expense Entries"
-        icon={""}
-        label={""}
-        extended={false}
-      />
-      <ThemedDropDownMultiple
-        items={groupedCategories}
-        values={groupCategories}
-        setValue={(values) => {
-          setGroupCategories(values);
-        }}
-      />
-      <DataTable>
-        <DataTable.Header>
-          <DataTable.Title
-            sortDirection={
-              sortColumn === "category"
-                ? sortAscending
-                  ? "ascending"
-                  : "descending"
-                : undefined
-            }
-            onPress={() => handleSort("category")}
-          >
-            Category
-          </DataTable.Title>
-          <DataTable.Title
-            sortDirection={
-              sortColumn === "description"
-                ? sortAscending
-                  ? "ascending"
-                  : "descending"
-                : undefined
-            }
-            onPress={() => handleSort("description")}
-          >
-            Description
-          </DataTable.Title>
-          <DataTable.Title
-            sortDirection={
-              sortColumn === "frequency"
-                ? sortAscending
-                  ? "ascending"
-                  : "descending"
-                : undefined
-            }
-            onPress={() => handleSort("frequency")}
-          >
-            Frequency
-          </DataTable.Title>
-          <DataTable.Title
-            sortDirection={
-              sortColumn === "price"
-                ? sortAscending
-                  ? "ascending"
-                  : "descending"
-                : undefined
-            }
-            onPress={() => handleSort("price")}
-          >
-            Price
-          </DataTable.Title>
-        </DataTable.Header>
+    <ScrollView style={styles.container}>
+      <Section title="Monat und Jahr">
+        <></>
+        {/* <Row label="Einkommen (Netto)" monat={income} jahr={income * 12} /> */}
+        {/* <Row
+          label="Summe der Kosten"
+          monat={sumCostsMonth}
+          jahr={sumCostsYear}
+        />
+        <Row label="Rest (Sparen)" monat={savingsMonth} jahr={savingsYear} /> */}
+      </Section>
 
-        {sortedExpenses.map((item, index) => (
-          <DataTable.Row key={index}>
-            <DataTable.Cell>{item.category}</DataTable.Cell>
-            <DataTable.Cell>{item.description}</DataTable.Cell>
-            <DataTable.Cell>{item.frequency.name}</DataTable.Cell>
-            <DataTable.Cell>{item.price.toFixed(2)}</DataTable.Cell>
-          </DataTable.Row>
+      <Section title="Auf Seite legen pro Monat">
+        <></>
+      </Section>
+
+      <Section title="Kosten pro Zahlungsmethode">
+        <></>
+      </Section>
+
+      {/* <Section title="Kosten je Kategorie pro Monat">
+        {Object.entries(categories).map(([key, value]) => (
+          <Row label={key} monat={value} jahr={value} />
         ))}
-      </DataTable>
-    </ThemedView>
+      </Section> */}
+    </ScrollView>
   );
 };
 
 export default Home;
+
+const Section = ({ title, children }) => (
+  <View style={styles.section}>
+    <Text style={styles.sectionTitle}>{title}</Text>
+    {children}
+  </View>
+);
+
+const Row = ({ label, monat, jahr }) => (
+  <View style={styles.row}>
+    <Text style={styles.label}>{label}</Text>
+    <Text style={styles.value}>{`${monat.toLocaleString("de-CH", {
+      style: "currency",
+      currency: "CHF",
+    })}`}</Text>
+    {jahr && (
+      <Text style={styles.value}>{`${jahr.toLocaleString("de-CH", {
+        style: "currency",
+        currency: "CHF",
+      })}`}</Text>
+    )}
+  </View>
+);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    padding: 16,
+  },
+  section: {
+    marginBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    paddingBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  label: {
+    fontWeight: "bold",
+  },
+  value: {
+    color: "#333",
+  },
+});

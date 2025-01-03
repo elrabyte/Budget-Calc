@@ -1,21 +1,23 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { ExpenseEntry } from "./types/expense-entry";
+import { ExpenseEntry } from "../types/expense-entry";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MD3DarkTheme, MD3Theme, PaperProvider } from "react-native-paper";
-import { darkTheme } from "./themes/dark-theme";
-import { lightTheme } from "./themes/light-theme";
+import { darkTheme } from "../themes/dark-theme";
+import { lightTheme } from "../themes/light-theme";
 
-export type AppContext = {
+export type AppContextProps = {
   children?: any;
   expenses: ExpenseEntry[];
   addExpense: (expense: ExpenseEntry) => void;
+  income: number;
   theme: MD3Theme;
   isDarkMode: boolean;
 };
 
-const AppContext = createContext<AppContext>({
+const AppContext = createContext<AppContextProps>({
   expenses: [],
   addExpense: () => {},
+  income: 6300,
   theme: MD3DarkTheme,
   isDarkMode: true,
 });
@@ -31,6 +33,7 @@ export const useAppContext = () => {
 export const AppContextProvider = ({ children }: any) => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [expenses, setExpenses] = useState<ExpenseEntry[]>([]);
+  const [income, setIncome] = useState<number>(6300);
 
   const theme = useMemo(() => {
     return isDarkMode ? darkTheme : lightTheme;
@@ -69,10 +72,10 @@ export const AppContextProvider = ({ children }: any) => {
   };
 
   return (
-    <AppContext.Provider value={{ theme, isDarkMode, expenses, addExpense }}>
+    <AppContext.Provider
+      value={{ theme, isDarkMode, expenses, addExpense, income }}
+    >
       <PaperProvider theme={theme}>{children}</PaperProvider>
     </AppContext.Provider>
   );
 };
-
-export default AppContextProvider;

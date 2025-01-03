@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { BottomTabNavigatorProps } from "@react-navigation/bottom-tabs";
-import { useAppContext } from "@/app/app-context";
+import { useAppContext } from "@/app/context/app-context";
 
 export function ThemedTabs({ children }: BottomTabNavigatorProps) {
   const { theme } = useAppContext();

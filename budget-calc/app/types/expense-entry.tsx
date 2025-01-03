@@ -5,5 +5,5 @@ export type ExpenseEntry = {
   description: string;
   frequency: Frequency;
   payment_account: string;
-  price: number;
+  cost: number;
 };

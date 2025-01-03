@@ -1,5 +1,5 @@
 import { View, type ViewProps } from "react-native";
-import { useAppContext } from "@/app/app-context";
+import { useAppContext } from "@/app/context/app-context";
 
 const ThemedView = ({ children }: ViewProps) => {
   const { theme } = useAppContext();

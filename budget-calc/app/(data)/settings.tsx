@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { ExpenseEntry } from "../types/expense-entry";
 import { Frequencies } from "../types/frequency";
-import { useAppContext } from "../app-context";
+import { useAppContext } from "../context/app-context";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
 import { Button, TextInput } from "react-native-paper";
 
@@ -15,7 +15,7 @@ const defaultExpense: ExpenseEntry = {
   description: "",
   frequency: Frequencies.filter((f) => f.name == "Monthly")[0],
   payment_account: "",
-  price: 0,
+  cost: 0,
 };
 const { addExpense } = useAppContext();
 
@@ -27,7 +27,7 @@ function ExpensesTab() {
       newExpense.category &&
       newExpense.description &&
       newExpense.payment_account &&
-      newExpense.price > 0
+      newExpense.cost > 0
     ) {
       addExpense(newExpense);
       setNewExpense(defaultExpense);
@@ -73,9 +73,9 @@ function ExpensesTab() {
       <ThemedTextInput
         label="Price"
         keyboardType="numeric"
-        value={newExpense.price.toString()}
+        value={newExpense.cost.toString()}
         setValue={(text) =>
-          setNewExpense({ ...newExpense, price: parseFloat(text) || 0 })
+          setNewExpense({ ...newExpense, cost: parseFloat(text) || 0 })
         }
       />
       <Button mode="contained" onPress={handleAddExpense}>

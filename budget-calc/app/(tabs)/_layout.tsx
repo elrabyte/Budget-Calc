@@ -1,39 +1,39 @@
 import React from "react";
-import { AppContextProvider, useAppContext } from "../app-context";
 import { ThemedTabs } from "@/components/ThemedTabs";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { AppContextProvider, useAppContext } from "../context/app-context";
 
 export default function Layout() {
-  const { theme } = useAppContext();
+  // const { theme } = useAppContext();
   return (
-    <AppContextProvider>
-      <ThemedTabs>
-        <Tabs.Screen
-          name={"index"}
-          options={{
-            title: "Home",
-            tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "home-sharp" : "home-outline"}
-                color={color}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name={"settings"}
-          options={{
-            title: "Settings",
-            tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "settings" : "settings-outline"}
-                color={color}
-              />
-            ),
-          }}
-        />
-      </ThemedTabs>
-    </AppContextProvider>
+    <ThemedTabs>
+      <Tabs.Screen
+        name={"index"}
+        options={{
+          title: "Overview",
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "home-sharp" : "home-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name={"settings"}
+        options={{
+          title: "Settings",
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "settings" : "settings-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+    </ThemedTabs>
   );
 }

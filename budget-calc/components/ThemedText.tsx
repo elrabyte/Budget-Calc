@@ -1,4 +1,4 @@
-import { useAppContext } from "@/app/app-context";
+import { useAppContext } from "@/app/context/app-context";
 import { StyleSheet } from "react-native";
 import { Props, Text } from "react-native-paper";
 
