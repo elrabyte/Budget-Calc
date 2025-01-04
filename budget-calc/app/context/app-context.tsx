@@ -12,6 +12,7 @@ export type AppContextProps = {
   income: number;
   theme: MD3Theme;
   isDarkMode: boolean;
+  currency: string;
 };
 
 const AppContext = createContext<AppContextProps>({
@@ -20,6 +21,7 @@ const AppContext = createContext<AppContextProps>({
   income: 6300,
   theme: MD3DarkTheme,
   isDarkMode: true,
+  currency: "CHF",
 });
 
 export const useAppContext = () => {
@@ -34,6 +36,7 @@ export const AppContextProvider = ({ children }: any) => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [expenses, setExpenses] = useState<ExpenseEntry[]>([]);
   const [income, setIncome] = useState<number>(6300);
+  const [currency, setCurrency] = useState<string>("CHF");
 
   const theme = useMemo(() => {
     return isDarkMode ? darkTheme : lightTheme;
@@ -49,6 +52,7 @@ export const AppContextProvider = ({ children }: any) => {
   }, []);
 
   const addExpense = (expense: ExpenseEntry) => {
+    console.log("add expense...");
     setExpenses((prevExpenses) => [...prevExpenses, expense]);
     saveExpenses();
   };
@@ -57,6 +61,7 @@ export const AppContextProvider = ({ children }: any) => {
       const data = JSON.stringify(expenses);
       if (!data) return;
       await AsyncStorage.setItem("expenses", data);
+      console.log("saved expenses");
     } catch (error) {
       alert("Error saving expenses: " + error.message);
     }
@@ -66,6 +71,7 @@ export const AppContextProvider = ({ children }: any) => {
       const data = await AsyncStorage.getItem("expenses");
       if (!data) return;
       setExpenses(JSON.parse(data));
+      console.log("loaded expenses");
     } catch (error) {
       alert("Error loading expenses: " + error.message);
     }
@@ -73,7 +79,7 @@ export const AppContextProvider = ({ children }: any) => {
 
   return (
     <AppContext.Provider
-      value={{ theme, isDarkMode, expenses, addExpense, income }}
+      value={{ theme, isDarkMode, expenses, addExpense, income, currency }}
     >
       <PaperProvider theme={theme}>{children}</PaperProvider>
     </AppContext.Provider>

@@ -1,20 +1,26 @@
 import React from "react";
-import { ThemedTabs } from "@/components/ThemedTabs";
-import { Stack, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { AppContextProvider, useAppContext } from "../context/app-context";
+import { useAppContext } from "../context/app-context";
+import { ThemedTabs } from "@/components/ThemedTabs";
 
 export default function Layout() {
   const { theme } = useAppContext();
   return (
-    <Stack>
-      <Stack.Screen
+    <ThemedTabs>
+      <Tabs.Screen
         name={"index"}
         options={{
           title: "Overview",
           headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "home-sharp" : "home-outline"}
+              color={color}
+            />
+          ),
         }}
       />
-    </Stack>
+    </ThemedTabs>
   );
 }

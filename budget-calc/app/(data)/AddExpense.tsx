@@ -1,14 +1,10 @@
-import ThemedView from "@/components/ThemedView";
-import DropDownPicker from "react-native-dropdown-picker";
 import React, { useState } from "react";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { ExpenseEntry } from "../types/expense-entry";
 import { Frequencies } from "../types/frequency";
 import { useAppContext } from "../context/app-context";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
-import { Button, TextInput } from "react-native-paper";
-
-const Tab = createMaterialTopTabNavigator();
+import { Button } from "react-native-paper";
+import { ThemedDropDown } from "@/components/ThemedDropDown";
 
 const defaultExpense: ExpenseEntry = {
   category: "",
@@ -17,10 +13,15 @@ const defaultExpense: ExpenseEntry = {
   payment_account: "",
   cost: 0,
 };
-const { addExpense } = useAppContext();
 
-function ExpensesTab() {
+type AddExpenseProps = {
+  close: () => void;
+};
+export const AddExpense = ({ close }: AddExpenseProps) => {
+  const { addExpense } = useAppContext();
+
   const [newExpense, setNewExpense] = useState<ExpenseEntry>(defaultExpense);
+  const [openFrequency, setOpenFrequency] = useState<boolean>(false);
 
   const handleAddExpense = () => {
     if (
@@ -31,14 +32,13 @@ function ExpensesTab() {
     ) {
       addExpense(newExpense);
       setNewExpense(defaultExpense);
+      close();
     } else {
       alert("Please fill out all fields.");
     }
   };
-
   return (
-    <ThemedView>
-      <TextInput mode="outlined" value={""} />
+    <>
       <ThemedTextInput
         label="Category"
         value={newExpense.category}
@@ -56,19 +56,16 @@ function ExpensesTab() {
           setNewExpense({ ...newExpense, payment_account: text })
         }
       />
-      <DropDownPicker
-        theme="DARK"
-        open={open}
+      <ThemedDropDown
         value={newExpense.frequency.name}
         items={Frequencies.map((f) => ({ value: f.name, label: f.name }))}
-        setOpen={setOpen}
-        setItems={() => {}}
-        setValue={() => {}}
-        onSelectItem={(value) => {
-          setOpen(false);
-          setNewExpense({ ...newExpense, frequency: { name: value.value! } });
+        setValue={(value) => {
+          const selectedFrequency = Frequencies.filter(
+            (f) => f.name == value
+          )[0];
+          setOpenFrequency(false);
+          setNewExpense({ ...newExpense, frequency: selectedFrequency });
         }}
-        multiple={false}
       />
       <ThemedTextInput
         label="Price"
@@ -78,19 +75,15 @@ function ExpensesTab() {
           setNewExpense({ ...newExpense, cost: parseFloat(text) || 0 })
         }
       />
-      <Button mode="contained" onPress={handleAddExpense}>
-        Add Expense
-      </Button>
-    </ThemedView>
-  );
-}
 
-export default function Settings() {
-  return (
-    <ThemedView>
-      <Tab.Navigator>
-        <Tab.Screen name="Expenses" component={ExpensesTab} />
-      </Tab.Navigator>
-    </ThemedView>
+      <Button
+        mode="contained"
+        onPress={() => {
+          handleAddExpense();
+        }}
+      >
+        {"Add"}
+      </Button>
+    </>
   );
-}
+};

@@ -1,12 +1,11 @@
-import { View, type ViewProps } from "react-native";
+import { View, ViewProps } from "react-native";
 import { useAppContext } from "@/app/context/app-context";
 
-const ThemedView = ({ children }: ViewProps) => {
+export const ThemedView = ({ children }: ViewProps) => {
   const { theme } = useAppContext();
 
   return (
-    <View style={{ backgroundColor: theme.colors.background }}>{children}</View>
+    // <View style={{ backgroundColor: theme.colors.background }}>{children}</View>
+    <View>{children}</View>
   );
 };
-
-export default ThemedView;

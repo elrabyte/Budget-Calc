@@ -15,9 +15,12 @@ export function ThemedTextInput({
 
   const styles = StyleSheet.create({
     input: {
-      marginBottom: 12,
       backgroundColor: theme.colors.surface,
       borderColor: theme.colors.outline,
+      width: "100%",
+      alignSelf: "center",
+      borderRadius: 5,
+      marginBottom: 10,
     },
   });
 

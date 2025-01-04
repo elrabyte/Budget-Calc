@@ -1,88 +1,141 @@
 import React, { useMemo } from "react";
 import { useAppContext } from "../context/app-context";
 
-import { ScrollView, StyleSheet, View, Text } from "react-native";
+import { StyleSheet } from "react-native";
+import ThemedScrollView from "@/components/ThemedScrollView";
+import { ThemedSection } from "@/components/ThemedSection";
+import { DataTable } from "react-native-paper";
 
 export const Home = () => {
-  const { expenses, income } = useAppContext();
+  const { expenses, income, currency } = useAppContext();
 
-  // const categories = useMemo(() => {
-  //   return new Set(expenses.map((e) => e.category));
-  // }, [expenses]);
+  const categories = useMemo(() => {
+    return Array.from(new Set(expenses.map((e) => e.category)));
+  }, [expenses]);
 
-  // const sumCostsMonth = useMemo(() => {
-  //   return expenses.reduce(
-  //     (sum, current) => sum + current.frequency.toMonth(current.cost),
-  //     0
-  //   );
-  // }, [expenses]);
-  // const sumCostsYear = useMemo(() => {
-  //   return expenses.reduce(
-  //     (sum, current) => sum + current.frequency.toYear(current.cost),
-  //     0
-  //   );
-  // }, [expenses]);
+  const accounts = useMemo(() => {
+    return Array.from(new Set(expenses.map((e) => e.payment_account)));
+  }, [expenses]);
 
-  // const savingsMonth = useMemo(
-  //   () => income - sumCostsMonth,
-  //   [expenses, income]
-  // );
-  // const savingsYear = useMemo(() => income - sumCostsYear, [expenses, income]);
+  const sumCostsMonth = useMemo(() => {
+    return expenses.reduce(
+      (sum, current) => sum + current.frequency.toMonth(current.cost),
+      0
+    );
+  }, [expenses]);
+  const sumCostsYear = useMemo(() => {
+    return expenses.reduce(
+      (sum, current) => sum + current.frequency.toYear(current.cost),
+      0
+    );
+  }, [expenses]);
+
+  const savingsMonth = useMemo(
+    () => income - sumCostsMonth,
+    [expenses, income]
+  );
+  const savingsYear = useMemo(() => income - sumCostsYear, [expenses, income]);
 
   return (
-    <ScrollView style={styles.container}>
-      <Section title="Monat und Jahr">
-        <></>
-        {/* <Row label="Einkommen (Netto)" monat={income} jahr={income * 12} /> */}
-        {/* <Row
-          label="Summe der Kosten"
-          monat={sumCostsMonth}
-          jahr={sumCostsYear}
-        />
-        <Row label="Rest (Sparen)" monat={savingsMonth} jahr={savingsYear} /> */}
-      </Section>
-
-      <Section title="Auf Seite legen pro Monat">
-        <></>
-      </Section>
-
-      <Section title="Kosten pro Zahlungsmethode">
-        <></>
-      </Section>
-
-      {/* <Section title="Kosten je Kategorie pro Monat">
-        {Object.entries(categories).map(([key, value]) => (
-          <Row label={key} monat={value} jahr={value} />
-        ))}
-      </Section> */}
-    </ScrollView>
+    <ThemedScrollView style={styles.container}>
+      <ThemedSection title="Monat und Jahr">
+        <DataTable>
+          <DataTable.Row>
+            <DataTable.Cell>{"Einkommen (Netto)"}</DataTable.Cell>
+            <DataTable.Cell numeric>{`${income} ${currency}`}</DataTable.Cell>
+            <DataTable.Cell numeric>{`${
+              income * 12
+            } ${currency}`}</DataTable.Cell>
+          </DataTable.Row>
+          <DataTable.Row>
+            <DataTable.Cell>{"Summe der Kosten"}</DataTable.Cell>
+            <DataTable.Cell
+              numeric
+            >{`${sumCostsMonth} ${currency}`}</DataTable.Cell>
+            <DataTable.Cell
+              numeric
+            >{`${sumCostsYear} ${currency}`}</DataTable.Cell>
+          </DataTable.Row>
+          <DataTable.Row>
+            <DataTable.Cell>{"Rest (Sparen)"}</DataTable.Cell>
+            <DataTable.Cell
+              numeric
+            >{`${savingsMonth} ${currency}`}</DataTable.Cell>
+            <DataTable.Cell
+              numeric
+            >{`${savingsYear} ${currency}`}</DataTable.Cell>
+          </DataTable.Row>
+        </DataTable>
+      </ThemedSection>
+      <ThemedSection title="Auf Seite legen pro Monat	">
+        <DataTable>
+          {accounts.map((account: string) => {
+            const expensePerAccountMonth = expenses
+              .filter((e) => e.payment_account == account)
+              .reduce(
+                (sum, current) => sum + current.frequency.toMonth(current.cost),
+                0
+              );
+            const expensePerAccountYear = expenses
+              .filter((e) => e.payment_account == account)
+              .reduce(
+                (sum, current) => sum + current.frequency.toYear(current.cost),
+                0
+              );
+            return (
+              <DataTable.Row>
+                <DataTable.Cell>{account}</DataTable.Cell>
+                <DataTable.Cell
+                  numeric
+                >{`${expensePerAccountMonth} ${currency}`}</DataTable.Cell>
+                <DataTable.Cell
+                  numeric
+                >{`${expensePerAccountYear} ${currency}`}</DataTable.Cell>
+              </DataTable.Row>
+            );
+          })}
+        </DataTable>
+      </ThemedSection>
+      <ThemedSection title="Kosten je Kategorie	">
+        <DataTable>
+          {categories.map((category: string) => {
+            const expensePerCategoryMonth = expenses
+              .filter((e) => e.category == category)
+              .reduce(
+                (sum, current) => sum + current.frequency.toMonth(current.cost),
+                0
+              );
+            const expensePerCategoryYear = expenses
+              .filter((e) => e.category == category)
+              .reduce(
+                (sum, current) => sum + current.frequency.toYear(current.cost),
+                0
+              );
+            return (
+              <DataTable.Row>
+                <DataTable.Cell>{category}</DataTable.Cell>
+                <DataTable.Cell
+                  numeric
+                >{`${expensePerCategoryMonth} ${currency}`}</DataTable.Cell>
+                <DataTable.Cell
+                  numeric
+                >{`${expensePerCategoryYear} ${currency}`}</DataTable.Cell>
+              </DataTable.Row>
+            );
+          })}
+        </DataTable>
+      </ThemedSection>
+    </ThemedScrollView>
   );
 };
 
 export default Home;
 
-const Section = ({ title, children }) => (
-  <View style={styles.section}>
-    <Text style={styles.sectionTitle}>{title}</Text>
-    {children}
-  </View>
-);
-
-const Row = ({ label, monat, jahr }) => (
-  <View style={styles.row}>
-    <Text style={styles.label}>{label}</Text>
-    <Text style={styles.value}>{`${monat.toLocaleString("de-CH", {
-      style: "currency",
-      currency: "CHF",
-    })}`}</Text>
-    {jahr && (
-      <Text style={styles.value}>{`${jahr.toLocaleString("de-CH", {
-        style: "currency",
-        currency: "CHF",
-      })}`}</Text>
-    )}
-  </View>
-);
+type RowProps = {
+  label: string;
+  monat: number;
+  jahr: number;
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -102,14 +155,23 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
+    flexDirection: "row", // Arrange items horizontally
+    justifyContent: "space-between", // Space between columns
+    alignItems: "center", // Align items vertically in the center
+    paddingVertical: 8, // Add spacing between rows
+    borderBottomWidth: 1, // Optional divider
+    borderBottomColor: "#666", // Divider color
   },
   label: {
-    fontWeight: "bold",
+    flex: 2, // Allocate more space for the label
+    fontSize: 16,
+    color: "#ffffff", // White text for dark mode
+    textAlign: "left", // Align the label text to the left
   },
   value: {
-    color: "#333",
+    flex: 1, // Equal space for each value column
+    fontSize: 16,
+    color: "#ffffff", // White text for dark mode
+    textAlign: "right", // Align the values to the right
   },
 });
