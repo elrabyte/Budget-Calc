@@ -1,9 +1,8 @@
-import { Frequency } from "./frequency";
-
 export type ExpenseEntry = {
+  id: string;
   category: string;
   description: string;
-  frequency: Frequency;
+  frequencyId: string;
   payment_account: string;
   cost: number;
 };

@@ -9,6 +9,7 @@ export type AppContextProps = {
   children?: any;
   expenses: ExpenseEntry[];
   addExpense: (expense: ExpenseEntry) => void;
+  removeExpense: (id: string) => void;
   income: number;
   theme: MD3Theme;
   isDarkMode: boolean;
@@ -18,6 +19,7 @@ export type AppContextProps = {
 const AppContext = createContext<AppContextProps>({
   expenses: [],
   addExpense: () => {},
+  removeExpense: () => {},
   income: 6300,
   theme: MD3DarkTheme,
   isDarkMode: true,
@@ -47,21 +49,38 @@ export const AppContextProvider = ({ children }: any) => {
   }, [isDarkMode]);
 
   useEffect(() => {
-    //init
     loadExpenses();
   }, []);
+  useEffect(() => {
+    saveExpenses();
+  }, [expenses]);
+
+  function generateGUID(): string {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
+  }
 
   const addExpense = (expense: ExpenseEntry) => {
-    console.log("add expense...");
-    setExpenses((prevExpenses) => [...prevExpenses, expense]);
-    saveExpenses();
+    expense.id = generateGUID();
+    console.log(`add expense: ${JSON.stringify(expense)}`);
+    setExpenses([...expenses, expense]);
+  };
+  const removeExpense = (id: string) => {
+    console.log(`remove expense: ${id}`);
+    setExpenses(expenses.filter((e) => e.id !== id));
   };
   const saveExpenses = async () => {
     try {
       const data = JSON.stringify(expenses);
       if (!data) return;
       await AsyncStorage.setItem("expenses", data);
-      console.log("saved expenses");
+      console.log(`saved expenses count: ${expenses.length}`);
     } catch (error) {
       alert("Error saving expenses: " + error.message);
     }
@@ -70,8 +89,9 @@ export const AppContextProvider = ({ children }: any) => {
     try {
       const data = await AsyncStorage.getItem("expenses");
       if (!data) return;
-      setExpenses(JSON.parse(data));
-      console.log("loaded expenses");
+      const expenses: ExpenseEntry[] = JSON.parse(data);
+      setExpenses(expenses);
+      console.log(`loaded expenses count: ${expenses.length}`);
     } catch (error) {
       alert("Error loading expenses: " + error.message);
     }
@@ -79,7 +99,15 @@ export const AppContextProvider = ({ children }: any) => {
 
   return (
     <AppContext.Provider
-      value={{ theme, isDarkMode, expenses, addExpense, income, currency }}
+      value={{
+        theme,
+        isDarkMode,
+        expenses,
+        addExpense,
+        removeExpense,
+        income,
+        currency,
+      }}
     >
       <PaperProvider theme={theme}>{children}</PaperProvider>
     </AppContext.Provider>

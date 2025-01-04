@@ -1,10 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useAppContext } from "../context/app-context";
 
 import { StyleSheet } from "react-native";
 import ThemedScrollView from "@/components/ThemedScrollView";
 import { ThemedSection } from "@/components/ThemedSection";
 import { DataTable } from "react-native-paper";
+import { getFrequency } from "../types/frequency";
 
 export const Home = () => {
   const { expenses, income, currency } = useAppContext();
@@ -19,13 +20,15 @@ export const Home = () => {
 
   const sumCostsMonth = useMemo(() => {
     return expenses.reduce(
-      (sum, current) => sum + current.frequency.toMonth(current.cost),
+      (sum, current) =>
+        sum + getFrequency(current.frequencyId).toMonth(current.cost),
       0
     );
   }, [expenses]);
   const sumCostsYear = useMemo(() => {
     return expenses.reduce(
-      (sum, current) => sum + current.frequency.toYear(current.cost),
+      (sum, current) =>
+        sum + getFrequency(current.frequencyId).toYear(current.cost),
       0
     );
   }, [expenses]);
@@ -36,18 +39,71 @@ export const Home = () => {
   );
   const savingsYear = useMemo(() => income - sumCostsYear, [expenses, income]);
 
+  const expenseCategoryMonth = useCallback(
+    (category: string) => {
+      const expense = expenses
+        .filter((e) => e.category == category)
+        .reduce(
+          (sum, current) =>
+            sum + getFrequency(current.frequencyId).toMonth(current.cost),
+          0
+        );
+      return expense;
+    },
+    [expenses]
+  );
+  const expenseCategoryYear = useCallback(
+    (category: string) => {
+      const expense = expenses
+        .filter((e) => e.category == category)
+        .reduce(
+          (sum, current) =>
+            sum + getFrequency(current.frequencyId).toYear(current.cost),
+          0
+        );
+      return expense;
+    },
+    [expenses]
+  );
+  const expenseAccountMonth = useCallback(
+    (account: string) => {
+      const expense = expenses
+        .filter((e) => e.payment_account == account)
+        .reduce(
+          (sum, current) =>
+            sum + getFrequency(current.frequencyId).toMonth(current.cost),
+          0
+        );
+      return expense;
+    },
+    [expenses]
+  );
+  const expenseAccountYear = useCallback(
+    (account: string) => {
+      const expense = expenses
+        .filter((e) => e.payment_account == account)
+        .reduce(
+          (sum, current) =>
+            sum + getFrequency(current.frequencyId).toYear(current.cost),
+          0
+        );
+      return expense;
+    },
+    [expenses]
+  );
+
   return (
     <ThemedScrollView style={styles.container}>
       <ThemedSection title="Monat und Jahr">
         <DataTable>
-          <DataTable.Row>
+          <DataTable.Row key={1}>
             <DataTable.Cell>{"Einkommen (Netto)"}</DataTable.Cell>
             <DataTable.Cell numeric>{`${income} ${currency}`}</DataTable.Cell>
             <DataTable.Cell numeric>{`${
               income * 12
             } ${currency}`}</DataTable.Cell>
           </DataTable.Row>
-          <DataTable.Row>
+          <DataTable.Row key={2}>
             <DataTable.Cell>{"Summe der Kosten"}</DataTable.Cell>
             <DataTable.Cell
               numeric
@@ -56,7 +112,7 @@ export const Home = () => {
               numeric
             >{`${sumCostsYear} ${currency}`}</DataTable.Cell>
           </DataTable.Row>
-          <DataTable.Row>
+          <DataTable.Row key={3}>
             <DataTable.Cell>{"Rest (Sparen)"}</DataTable.Cell>
             <DataTable.Cell
               numeric
@@ -70,27 +126,15 @@ export const Home = () => {
       <ThemedSection title="Auf Seite legen pro Monat	">
         <DataTable>
           {accounts.map((account: string) => {
-            const expensePerAccountMonth = expenses
-              .filter((e) => e.payment_account == account)
-              .reduce(
-                (sum, current) => sum + current.frequency.toMonth(current.cost),
-                0
-              );
-            const expensePerAccountYear = expenses
-              .filter((e) => e.payment_account == account)
-              .reduce(
-                (sum, current) => sum + current.frequency.toYear(current.cost),
-                0
-              );
             return (
-              <DataTable.Row>
+              <DataTable.Row key={account}>
                 <DataTable.Cell>{account}</DataTable.Cell>
-                <DataTable.Cell
-                  numeric
-                >{`${expensePerAccountMonth} ${currency}`}</DataTable.Cell>
-                <DataTable.Cell
-                  numeric
-                >{`${expensePerAccountYear} ${currency}`}</DataTable.Cell>
+                <DataTable.Cell numeric>{`${expenseAccountMonth(
+                  account
+                )} ${currency}`}</DataTable.Cell>
+                <DataTable.Cell numeric>{`${expenseAccountYear(
+                  account
+                )} ${currency}`}</DataTable.Cell>
               </DataTable.Row>
             );
           })}
@@ -99,27 +143,15 @@ export const Home = () => {
       <ThemedSection title="Kosten je Kategorie	">
         <DataTable>
           {categories.map((category: string) => {
-            const expensePerCategoryMonth = expenses
-              .filter((e) => e.category == category)
-              .reduce(
-                (sum, current) => sum + current.frequency.toMonth(current.cost),
-                0
-              );
-            const expensePerCategoryYear = expenses
-              .filter((e) => e.category == category)
-              .reduce(
-                (sum, current) => sum + current.frequency.toYear(current.cost),
-                0
-              );
             return (
-              <DataTable.Row>
+              <DataTable.Row key={category}>
                 <DataTable.Cell>{category}</DataTable.Cell>
-                <DataTable.Cell
-                  numeric
-                >{`${expensePerCategoryMonth} ${currency}`}</DataTable.Cell>
-                <DataTable.Cell
-                  numeric
-                >{`${expensePerCategoryYear} ${currency}`}</DataTable.Cell>
+                <DataTable.Cell numeric>{`${expenseCategoryMonth(
+                  category
+                )} ${currency}`}</DataTable.Cell>
+                <DataTable.Cell numeric>{`${expenseCategoryYear(
+                  category
+                )} ${currency}`}</DataTable.Cell>
               </DataTable.Row>
             );
           })}

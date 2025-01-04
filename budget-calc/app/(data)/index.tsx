@@ -1,13 +1,14 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { FloatingButton } from "@/components/FloatingButton";
 import { Popup } from "@/components/Popup";
 import ThemedScrollView from "@/components/ThemedScrollView";
 import { AddExpense } from "./AddExpense";
-import { DataTable } from "react-native-paper";
+import { Button, DataTable } from "react-native-paper";
 import { useAppContext } from "../context/app-context";
+import { getFrequency } from "../types/frequency";
 
 export const Home = () => {
-  const { expenses } = useAppContext();
+  const { expenses, removeExpense } = useAppContext();
   const [showAddExpense, setShowAddExpense] = useState<boolean>(false);
   const [sortColumn, setSortColumn] = useState("category");
   const [sortAscending, setSortAscending] = useState(true);
@@ -26,6 +27,7 @@ export const Home = () => {
     if (a[sortColumn] > b[sortColumn]) return sortAscending ? 1 : -1;
     return 0;
   });
+
   return (
     <>
       <ThemedScrollView>
@@ -79,13 +81,21 @@ export const Home = () => {
             >
               Price
             </DataTable.Title>
+            <DataTable.Title>
+              <></>
+            </DataTable.Title>
           </DataTable.Header>
           {sortedExpenses.map((item, index) => (
             <DataTable.Row key={index}>
               <DataTable.Cell>{item.category}</DataTable.Cell>
               <DataTable.Cell>{item.description}</DataTable.Cell>
-              <DataTable.Cell>{item.frequency.name}</DataTable.Cell>
+              <DataTable.Cell>
+                {getFrequency(item.frequencyId).name}
+              </DataTable.Cell>
               <DataTable.Cell>{item.cost.toFixed(2)}</DataTable.Cell>
+              <DataTable.Cell>
+                <Button onPress={() => removeExpense(item.id)}>Remove</Button>
+              </DataTable.Cell>
             </DataTable.Row>
           ))}
         </DataTable>

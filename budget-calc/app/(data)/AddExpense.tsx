@@ -7,9 +7,10 @@ import { Button } from "react-native-paper";
 import { ThemedDropDown } from "@/components/ThemedDropDown";
 
 const defaultExpense: ExpenseEntry = {
+  id: "",
   category: "",
   description: "",
-  frequency: Frequencies.filter((f) => f.name == "Monthly")[0],
+  frequencyId: "monthly",
   payment_account: "",
   cost: 0,
 };
@@ -57,14 +58,12 @@ export const AddExpense = ({ close }: AddExpenseProps) => {
         }
       />
       <ThemedDropDown
-        value={newExpense.frequency.name}
-        items={Frequencies.map((f) => ({ value: f.name, label: f.name }))}
-        setValue={(value) => {
-          const selectedFrequency = Frequencies.filter(
-            (f) => f.name == value
-          )[0];
+        value={newExpense.frequencyId}
+        items={Frequencies.map((f) => ({ value: f.id, label: f.name }))}
+        setValue={(id) => {
+          const selectedFrequency = Frequencies.filter((f) => f.id == id)[0];
           setOpenFrequency(false);
-          setNewExpense({ ...newExpense, frequency: selectedFrequency });
+          setNewExpense({ ...newExpense, frequencyId: selectedFrequency.id });
         }}
       />
       <ThemedTextInput
